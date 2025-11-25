@@ -1,75 +1,57 @@
-# API REST de Tareas - Spring Boot
+# Task API - Spring Boot CRUD con CI/CD
 
-API REST completa con CRUD para gestión de tareas, con pipeline CI/CD configurado para GitLab y deployment en Render.
+API REST para gestión de tareas desplegada en **Render.com** con pipeline CI/CD.
+
+🌐 **URL Producción:** `https://integracionydesplieguecontinuo.onrender.com`
+
+## 📋 Endpoints Disponibles
+
+```bash
+# Ver todas las tareas
+GET /api/tasks
+
+# Crear tarea
+POST /api/tasks
+Body: {"title":"Título","description":"Descripción","completed":false}
+
+# Ver tarea específica
+GET /api/tasks/{id}
+
+# Actualizar tarea
+PUT /api/tasks/{id}
+
+# Marcar completada/incompleta
+PATCH /api/tasks/{id}/toggle
+
+# Eliminar tarea
+DELETE /api/tasks/{id}
+
+# Filtrar por estado
+GET /api/tasks/completed/{true|false}
+
+# Buscar por título
+GET /api/tasks/search?title=palabra
+```
+
+## 💡 Ejemplo Rápido
+
+```powershell
+# Crear tarea
+Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks" `
+  -Method POST -ContentType "application/json" `
+  -Body '{"title":"Mi tarea","description":"Hacer algo","completed":false}'
+
+# Ver todas
+Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks"
+```
 
 ## 🚀 Características
 
-- **CRUD Completo** de Tareas (Crear, Leer, Actualizar, Eliminar)
-- **Búsqueda y Filtrado** por estado y título
-- **Base de datos H2** en memoria (configurable a PostgreSQL/MySQL)
-- **Pruebas Unitarias** completas
-- **Pipeline CI/CD** con 3 etapas
-- **Despliegue automático** en Render.com
-
-## 📋 Endpoints de la API
-
-### Tareas
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/tasks` | Obtener todas las tareas |
-| GET | `/api/tasks/{id}` | Obtener una tarea por ID |
-| GET | `/api/tasks/status/{completed}` | Filtrar por estado (true/false) |
-| GET | `/api/tasks/search?title=texto` | Buscar por título |
-| POST | `/api/tasks` | Crear nueva tarea |
-| PUT | `/api/tasks/{id}` | Actualizar tarea |
-| PATCH | `/api/tasks/{id}/toggle` | Alternar estado completado |
-| DELETE | `/api/tasks/{id}` | Eliminar tarea |
-| GET | `/api/tasks/health` | Health check |
-
-### Ejemplos de Uso
-
-**Crear una tarea:**
-```bash
-curl -X POST http://localhost:8080/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Comprar víveres",
-    "description": "Leche, pan y frutas",
-    "completed": false
-  }'
-```
-
-**Obtener todas las tareas:**
-```bash
-curl http://localhost:8080/api/tasks
-```
-
-**Actualizar una tarea:**
-```bash
-curl -X PUT http://localhost:8080/api/tasks/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Comprar víveres (actualizado)",
-    "description": "Leche, pan, frutas y verduras",
-    "completed": true
-  }'
-```
-
-**Eliminar una tarea:**
-```bash
-curl -X DELETE http://localhost:8080/api/tasks/1
-```
-
-## 🛠️ Tecnologías Utilizadas
-
-- **Java 17**
-- **Spring Boot 4.0.0**
-- **Spring Data JPA**
-- **H2 Database**
-- **Maven**
-- **JUnit 5**
-- **Mockito**
+- ✅ CRUD completo de tareas
+- ✅ 18 tests unitarios (JUnit + Mockito)
+- ✅ Pipeline CI/CD GitLab (3 etapas: Build, Test, Package)
+- ✅ Desplegado en Render.com con Docker
+- ✅ Base de datos H2 en memoria
 
 ## 🏃‍♂️ Ejecución Local
 

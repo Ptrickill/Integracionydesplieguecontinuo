@@ -1,0 +1,63 @@
+stages:
+  - build
+  - test
+  - package
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+# Cache de Maven para acelerar builds
+cache:
+  paths:
+    - .m2/repository
+
+# Etapa 1: BUILD - Compilar el proyecto
+build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - echo "Iniciando compilación del proyecto..."
+    - mvn clean compile
+    - echo "Compilación completada exitosamente"
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1 hour
+
+# Etapa 2: TEST - Ejecutar pruebas unitarias
+test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - echo "Ejecutando pruebas unitarias..."
+    - mvn test
+    - echo "Pruebas completadas exitosamente"
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+    expire_in: 1 week
+  dependencies:
+    - build
+
+# Etapa 3: PACKAGE - Empaquetar la aplicación
+package:
+  stage: package
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - echo "Empaquetando la aplicación..."
+    - mvn package -DskipTests
+    - echo "Paquete JAR creado exitosamente"
+    - ls -lh target/*.jar
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 week
+  dependencies:
+    - test
+  only:
+    - main
+    - master

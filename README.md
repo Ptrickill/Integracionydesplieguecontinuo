@@ -1,193 +1,179 @@
 # Task API - Spring Boot CRUD con CI/CD
 
-API REST para gestión de tareas desplegada en **Render.com** con pipeline CI/CD.
+API REST para gestión de tareas con CRUD completo, desplegada automáticamente en Render.com mediante Docker y pipeline CI/CD.
 
-🌐 **URL Producción:** `https://integracionydesplieguecontinuo.onrender.com`
+🌐 **URL Producción:** `https://integracionydesplieguecontinuo.onrender.com/api/tasks`
 
-## 📋 Endpoints Disponibles
+---
 
-```bash
-# Ver todas las tareas
-GET /api/tasks
+## 📋 Endpoints
 
-# Crear tarea
-POST /api/tasks
-Body: {"title":"Título","description":"Descripción","completed":false}
+| Método | Ruta | Descripción | Body |
+|--------|------|-------------|------|
+| `GET` | `/api/tasks` | Listar todas las tareas | - |
+| `GET` | `/api/tasks/{id}` | Obtener tarea por ID | - |
+| `POST` | `/api/tasks` | Crear tarea | `{"title":"...","description":"...","completed":false}` |
+| `PUT` | `/api/tasks/{id}` | Actualizar tarea | `{"title":"...","description":"...","completed":true}` |
+| `PATCH` | `/api/tasks/{id}/toggle` | Cambiar estado completado/incompleto | - |
+| `DELETE` | `/api/tasks/{id}` | Eliminar tarea | - |
+| `GET` | `/api/tasks/completed/{true\|false}` | Filtrar por estado | - |
+| `GET` | `/api/tasks/search?title=texto` | Buscar por título | - |
 
-# Ver tarea específica
-GET /api/tasks/{id}
-
-# Actualizar tarea
-PUT /api/tasks/{id}
-
-# Marcar completada/incompleta
-PATCH /api/tasks/{id}/toggle
-
-# Eliminar tarea
-DELETE /api/tasks/{id}
-
-# Filtrar por estado
-GET /api/tasks/completed/{true|false}
-
-# Buscar por título
-GET /api/tasks/search?title=palabra
-```
-
-## 💡 Ejemplo Rápido
+### Ejemplo de uso (PowerShell)
 
 ```powershell
-# Crear tarea
+# Crear una nueva tarea
 Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks" `
   -Method POST -ContentType "application/json" `
-  -Body '{"title":"Mi tarea","description":"Hacer algo","completed":false}'
+  -Body '{"title":"Estudiar Spring Boot","description":"Revisar documentación","completed":false}'
 
-# Ver todas
+# Listar todas las tareas
 Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks"
+
+# Actualizar tarea
+Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks/1" `
+  -Method PUT -ContentType "application/json" `
+  -Body '{"title":"Estudiar Spring Boot","description":"Completado","completed":true}'
+
+# Eliminar tarea
+Invoke-RestMethod -Uri "https://integracionydesplieguecontinuo.onrender.com/api/tasks/1" `
+  -Method DELETE
 ```
+
+---
 
 ## 🚀 Características
 
-- ✅ CRUD completo de tareas
-- ✅ 18 tests unitarios (JUnit + Mockito)
-- ✅ Pipeline CI/CD GitLab (3 etapas: Build, Test, Package)
-- ✅ Desplegado en Render.com con Docker
-- ✅ Base de datos H2 en memoria
+- ✅ **CRUD completo** - Crear, Leer, Actualizar y Eliminar tareas
+- ✅ **18 tests unitarios** - Cobertura completa con JUnit 5 + Mockito
+- ✅ **Pipeline CI/CD** - 3 etapas automatizadas en GitLab
+- ✅ **Deployment automático** - Cada push a `main` despliega en Render.com
+- ✅ **Docker multi-stage** - Imagen optimizada para producción
+- ✅ **Base de datos H2** - En memoria, migrable a PostgreSQL
 
-## 🏃‍♂️ Ejecución Local
+---
 
-### Requisitos previos
-- Java 17 o superior
-- Maven 3.6+
+## 🔄 Pipeline CI/CD (GitLab)
 
-### Ejecutar la aplicación
+El pipeline se ejecuta automáticamente en cada push con **3 etapas**:
+
+```
+┌─────────────┐     ┌─────────────┐     ┌──────────────┐
+│   BUILD     │ --> │    TEST     │ --> │   PACKAGE    │
+│ Compilación │     │  18 tests   │     │  Generar JAR │
+└─────────────┘     └─────────────┘     └──────────────┘
+```
+
+**Configuración en `.gitlab-ci.yml`:**
+1. **Build:** Compila el código con `mvn clean compile`
+2. **Test:** Ejecuta tests unitarios y genera reportes JUnit
+3. **Package:** Empaqueta en JAR (`demo-0.0.1-SNAPSHOT.jar`)
+
+---
+
+## 🐳 Deployment en Render.com
+
+### Flujo de Deployment Automático
+
+```
+Push a GitHub → Render detecta cambios → Build Docker → Deploy → API Online ✅
+```
+
+### Dockerfile Multi-Stage
+
+El proyecto usa un Dockerfile optimizado en 2 etapas:
+
+**Etapa 1 (Build):** Compila con Maven
+```dockerfile
+FROM maven:3.9-eclipse-temurin-17 AS build
+RUN mvn clean package -DskipTests
+```
+
+**Etapa 2 (Runtime):** Ejecuta solo con JRE
+```dockerfile
+FROM eclipse-temurin:17-jre-alpine
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+**Ventajas:**
+- Imagen final ligera (solo JRE, sin Maven)
+- Deployment reproducible
+- Sin configuración manual
+
+---
+
+## 🛠️ Tecnologías
+
+| Categoría | Tecnología |
+|-----------|------------|
+| **Lenguaje** | Java 17 |
+| **Framework** | Spring Boot 3.2.0 |
+| **Persistencia** | Spring Data JPA + H2 |
+| **Testing** | JUnit 5 + Mockito |
+| **Build** | Maven 3.9 |
+| **CI/CD** | GitLab Pipeline |
+| **Deployment** | Render.com + Docker |
+
+---
+
+## 🏃‍♂️ Ejecutar Localmente
+
+### Requisitos
+- Java 17+
+- Maven 3.6+ (incluye wrapper)
+
+### Comandos
 
 ```bash
-# Compilar
-mvn clean compile
+# Ejecutar aplicación
+./mvnw spring-boot:run
 
 # Ejecutar tests
 mvn test
 
-# Empaquetar
+# Crear JAR
 mvn package
-
-# Ejecutar la aplicación
-java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
 
-O usar el wrapper de Maven:
-```bash
-# Windows
-mvnw.cmd spring-boot:run
+**Aplicación disponible en:** `http://localhost:8080/api/tasks`
 
-# Linux/Mac
-./mvnw spring-boot:run
-```
+**Consola H2:** `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:taskdb`
+- Usuario: `sa` | Contraseña: *(vacía)*
 
-La aplicación estará disponible en `http://localhost:8080`
-
-## 🔧 Consola H2
-
-Accede a la consola de base de datos en: `http://localhost:8080/h2-console`
-
-- **JDBC URL:** `jdbc:h2:mem:taskdb`
-- **Usuario:** `sa`
-- **Contraseña:** *(vacía)*
-
-## 🔄 Pipeline CI/CD
-
-El pipeline de GitLab CI/CD incluye 3 etapas:
-
-### 1. **Build** 
-Compila el proyecto con Maven
-
-### 2. **Test**
-Ejecuta todas las pruebas unitarias y genera reportes
-
-### 3. **Package**
-- Empaqueta la aplicación en un archivo JAR
-- Genera artifact para deployment
-
-## ⚙️ Deployment en Render.com
-
-La aplicación está configurada para desplegarse automáticamente en Render.com:
-
-1. Conecta tu repositorio de GitLab/GitHub con Render
-2. Render detecta automáticamente que es una aplicación Spring Boot
-3. Cada push a `main` despliega automáticamente
-4. URL pública generada automáticamente
-
-Ver `RENDER_SETUP.md` para instrucciones detalladas.
+---
 
 ## 📦 Estructura del Proyecto
 
 ```
 demo/
-├── src/
-│   ├── main/
-│   │   ├── java/com/example/demo/
-│   │   │   ├── controller/
-│   │   │   │   └── TaskController.java
-│   │   │   ├── model/
-│   │   │   │   └── Task.java
-│   │   │   ├── repository/
-│   │   │   │   └── TaskRepository.java
-│   │   │   ├── service/
-│   │   │   │   └── TaskService.java
-│   │   │   └── DemoApplication.java
-│   │   └── resources/
-│   │       └── application.properties
-│   └── test/
-│       └── java/com/example/demo/
-│           ├── controller/
-│           │   └── TaskControllerTest.java
-│           ├── service/
-│           │   └── TaskServiceTest.java
-│           └── DemoApplicationTests.java
-├── .gitlab-ci.yml
-├── pom.xml
-└── README.md
+├── .gitlab-ci.yml              # Pipeline CI/CD
+├── Dockerfile                  # Configuración Docker
+├── pom.xml                     # Dependencias Maven
+└── src/
+    ├── main/java/
+    │   ├── controller/TaskController.java    # 9 endpoints REST
+    │   ├── service/TaskService.java          # Lógica de negocio
+    │   ├── repository/TaskRepository.java    # JPA Repository
+    │   └── model/Task.java                   # Entidad Task
+    └── test/java/
+        ├── controller/TaskControllerTest.java  # 9 tests
+        └── service/TaskServiceTest.java        # 9 tests
 ```
-
-## 🧪 Ejecutar Tests
-
-```bash
-# Ejecutar todos los tests
-mvn test
-
-# Ejecutar con reporte de cobertura
-mvn test jacoco:report
-```
-
-## 📝 Notas Importantes
-
-1. **Base de Datos:**
-   - Actualmente usa H2 en memoria (los datos se pierden al reiniciar)
-   - Para producción en Render, puedes usar PostgreSQL gratuito
-
-2. **Puerto de la aplicación:**
-   - Configurable en `application.properties` con `server.port`
-   - Render asigna automáticamente el puerto mediante variable de entorno
-
-3. **Variables de entorno:**
-   - Configúralas en Render Dashboard para diferentes ambientes
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
-
-## 📧 Contacto
-
-Para preguntas o sugerencias, abre un issue en el repositorio.
 
 ---
 
-**¡Happy Coding! 🚀**
+## 👥 Autores
+
+**Grupo 9 - 5556**
+
+- Carvajal Sandoval, José
+- Díaz Mosquera, Daniel
+- Guaña Romero, Roberto
+- Lopez Estrella, Darwin
+- Olivo Yanez, Paulo
+- Puga Ayala, Isaac
+
+---
+
+**Repositorio:** [https://github.com/Ptrickill/Integracionydesplieguecontinuo](https://github.com/Ptrickill/Integracionydesplieguecontinuo)

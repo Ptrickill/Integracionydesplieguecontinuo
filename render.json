@@ -1,4 +1,13 @@
 {
-  "buildCommand": "chmod +x mvnw && ./mvnw clean package -DskipTests",
-  "startCommand": "java -jar target/demo-0.0.1-SNAPSHOT.jar"
+  "services": [
+    {
+      "type": "web",
+      "name": "task-api",
+      "env": "java",
+      "region": "oregon",
+      "plan": "free",
+      "buildCommand": "chmod +x mvnw && ./mvnw clean package -DskipTests",
+      "startCommand": "java -jar target/demo-0.0.1-SNAPSHOT.jar"
+    }
+  ]
 }
